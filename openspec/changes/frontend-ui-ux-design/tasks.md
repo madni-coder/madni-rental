@@ -1,44 +1,44 @@
 ## 1. Foundation: shadcn/ui Init + Tailwind + Token Setup
 
-- [ ] 1.1 Install `lucide-react` as a runtime dependency in `client/` — `npm install lucide-react`
-- [ ] 1.2 Run `npx shadcn@latest init` inside `client/` — choose: TypeScript=No, baseColor=slate, cssVariables=Yes, tailwind config path=tailwind.config.js, components path=src/components/ui
-- [ ] 1.3 Add Inter font via `next/font/google` in `client/src/app/layout.jsx` with `subsets: ['latin']` and apply `className` to `<html>` element
-- [ ] 1.4 Override the entire `:root` block in `client/src/app/globals.css` with the Obsidian Dark HSL values: `--background: 230 15% 8%`, `--card: 230 22% 13%`, `--primary: 244 100% 69%`, `--destructive: 0 84% 60%`, `--border: 230 22% 23%`, `--muted-foreground: 220 9% 46%`, etc. (full mapping per design.md D2)
+- [x] 1.1 Install `lucide-react` as a runtime dependency in `client/` — `npm install lucide-react`
+- [x] 1.2 Run `npx shadcn@latest init` inside `client/` — choose: TypeScript=No, baseColor=slate, cssVariables=Yes, tailwind config path=tailwind.config.js, components path=src/components/ui
+- [x] 1.3 Add Inter font via `next/font/google` in `client/src/app/layout.jsx` with `subsets: ['latin']` and apply `className` to `<html>` element
+- [x] 1.4 Override the entire `:root` block in `client/src/app/globals.css` with the Obsidian Dark HSL values: `--background: 230 15% 8%`, `--card: 230 22% 13%`, `--primary: 244 100% 69%`, `--destructive: 0 84% 60%`, `--border: 230 22% 23%`, `--muted-foreground: 220 9% 46%`, etc. (full mapping per design.md D2)
 - [ ] 1.5 Extend `tailwind.config.js` with semantic alias colors wrapping the CSS vars: `bg: 'hsl(var(--background))'`, `surface: 'hsl(var(--card))'`, `border: 'hsl(var(--border))'`, `primary: 'hsl(var(--primary))'`, `text: 'hsl(var(--foreground))'`, `muted: 'hsl(var(--muted-foreground))'`, `danger: 'hsl(var(--destructive))'`
 - [ ] 1.6 Add custom `boxShadow` tokens to Tailwind config: `shadow-card`, `shadow-modal`, `shadow-toast`
 - [ ] 1.7 Add `safelist` array to Tailwind config covering all dynamic opacity variants: `bg-primary/10`, `bg-primary/15`, `bg-danger/15`, `border-danger/40`, `text-primary/70`, etc.
-- [ ] 1.8 Set `body` background to `bg-background` and default text color to `text-foreground` in `globals.css`
-- [ ] 1.9 Add global `strokeWidth` default for Lucide icons — apply `[&_svg]:stroke-[1.75]` on the root layout `<body>` or wrap in a provider
+- [x] 1.8 Set `body` background to `bg-background` and default text color to `text-foreground` in `globals.css`
+- [x] 1.9 Add global `strokeWidth` default for Lucide icons — apply `[&_svg]:stroke-[1.75]` on the root layout `<body>` or wrap in a provider
 
 ---
 
 ## 2. Layout Shell Components
 
-- [ ] 2.1 Create `client/src/components/layout/Sidebar.jsx` — fixed `w-60 h-screen bg-surface border-r border-border` with logo area, nav items, and bottom user section
-- [ ] 2.2 Implement sidebar nav items with active/hover/default states using Next.js `usePathname()` for active detection
-- [ ] 2.3 Apply module-to-icon mapping in sidebar: `<LayoutDashboard />`, `<Building2 />`, `<Users />`, `<Receipt />`, `<Wallet />`, `<BarChart3 />` with correct `size={16}` and `aria-hidden="true"`
-- [ ] 2.4 Add user display name, email, and Logout button to sidebar bottom area (`mt-auto border-t border-border p-4`)
-- [ ] 2.5 Create `client/src/components/layout/AppShell.jsx` — `flex min-h-screen bg-bg` wrapper with sidebar + `ml-60 flex-1` content area
-- [ ] 2.6 Create `client/src/components/layout/PageHeader.jsx` — accepts `title` and optional `action` slot; renders `flex items-center justify-between mb-6` with `text-2xl font-bold text-text`
-- [ ] 2.7 Apply `AppShell` to all authenticated page routes via the root layout or a nested `(dashboard)` layout in Next.js App Router
+- [x] 2.1 Create `client/src/components/layout/Sidebar.jsx` — fixed `w-60 h-screen bg-surface border-r border-border` with logo area, nav items, and bottom user section
+- [x] 2.2 Implement sidebar nav items with active/hover/default states using Next.js `usePathname()` for active detection
+- [x] 2.3 Apply module-to-icon mapping in sidebar: `<LayoutDashboard />`, `<Building2 />`, `<Users />`, `<Receipt />`, `<Wallet />`, `<BarChart3 />` with correct `size={16}` and `aria-hidden="true"`
+- [x] 2.4 Add user display name, email, and Logout button to sidebar bottom area (`mt-auto border-t border-border p-4`)
+- [x] 2.5 Create `client/src/components/layout/AppShell.jsx` — `flex min-h-screen bg-bg` wrapper with sidebar + `ml-60 flex-1` content area
+- [x] 2.6 Create `client/src/components/layout/PageHeader.jsx` — accepts `title` and optional `action` slot; renders `flex items-center justify-between mb-6` with `text-2xl font-bold text-text`
+- [x] 2.7 Apply `AppShell` to all authenticated page routes via the root layout or a nested `(dashboard)` layout in Next.js App Router
 
 ---
 
 ## 3. Button Component
 
-- [ ] 3.1 Install shadcn button: `npx shadcn@latest add button` — this creates `client/src/components/ui/button.jsx`
-- [ ] 3.2 In `button.jsx`, rename `default` variant to also support `variant="primary"` alias via the CVA config (or create a thin `<Button>` re-export that maps `primary` → `default`, `danger` → `destructive`)
-- [ ] 3.3 Add `danger` variant in the CVA `variants.variant` object: `danger: 'bg-danger/15 text-danger border border-danger/40 hover:bg-danger hover:text-white hover:border-danger'`
-- [ ] 3.4 Add `loading` prop support: when `loading={true}`, prepend `<Loader2 size={16} className="animate-spin" />` to children and apply `pointer-events-none opacity-80`
+- [x] 3.1 Install shadcn button: `npx shadcn@latest add button` — this creates `client/src/components/ui/button.jsx`
+- [x] 3.2 In `button.jsx`, rename `default` variant to also support `variant="primary"` alias via the CVA config (or create a thin `<Button>` re-export that maps `primary` → `default`, `danger` → `destructive`)
+- [x] 3.3 Add `danger` variant in the CVA `variants.variant` object: `danger: 'bg-danger/15 text-danger border border-danger/40 hover:bg-danger hover:text-white hover:border-danger'`
+- [x] 3.4 Add `loading` prop support: when `loading={true}`, prepend `<Loader2 size={16} className="animate-spin" />` to children and apply `pointer-events-none opacity-80`
 - [ ] 3.5 Verify generated CSS variables produce correct colors for each variant against the Obsidian Dark palette — check in browser devtools
 
 ---
 
 ## 4. Input Components
 
-- [ ] 4.1 Install shadcn input, select, textarea, label: `npx shadcn@latest add input select textarea label`
+- [x] 4.1 Install shadcn input, select, textarea, label: `npx shadcn@latest add input select textarea label`
 - [ ] 4.2 Verify installed `input.jsx` styles inherit correctly from CSS variables (`bg-background`, `border-input`, `placeholder:text-muted-foreground`) — adjust any classes that deviate from the visual spec in design.md D6
-- [ ] 4.3 Create `client/src/components/ui/FormField.jsx` — wrapper accepting `label`, `helper`, `error`, `children`; renders label (`text-xs font-medium text-muted uppercase tracking-wide block mb-1`), the child input, helper text (`text-xs text-muted mt-1`), and error message (`text-xs text-danger flex items-center gap-1 mt-1` with `<AlertCircle size={12} />`)
+- [x] 4.3 Create `client/src/components/ui/FormField.jsx` — wrapper accepting `label`, `helper`, `error`, `children`; renders label (`text-xs font-medium text-muted uppercase tracking-wide block mb-1`), the child input, helper text (`text-xs text-muted mt-1`), and error message (`text-xs text-danger flex items-center gap-1 mt-1` with `<AlertCircle size={12} />`)
 - [ ] 4.4 Create `client/src/components/ui/InputWithIcon.jsx` — wraps shadcn `<Input>` in a `relative` div with `leftIcon` (`absolute left-3 text-muted pointer-events-none`) and `rightIcon` support; applies `pl-9` or `pr-9` on the `<Input>` accordingly
 - [ ] 4.5 Verify shadcn `<Select>` renders correctly with our CSS variables for `SelectTrigger`, `SelectContent`, `SelectItem` — override background to `bg-card` and border to `border-border` if default values differ
 
@@ -46,38 +46,38 @@
 
 ## 5. Modal Component
 
-- [ ] 5.1 Install shadcn dialog: `npx shadcn@latest add dialog` — installs Radix UI Dialog with Escape key, focus trap, backdrop click, and ARIA out of the box
-- [ ] 5.2 Create `client/src/components/ui/Modal.jsx` — a convenience wrapper around `Dialog` / `DialogContent` / `DialogHeader` / `DialogFooter` accepting `isOpen`, `onClose`, `title`, `icon`, `size` (`sm` | `md` | `lg`) props
-- [ ] 5.3 Override `DialogContent` className to match visual spec: `bg-card border-border shadow-modal mt-[10vh]` and size variants (`max-w-sm`, `max-w-lg`, `max-w-2xl`) via `cn()` utility
-- [ ] 5.4 Implement `Modal.Header` inside the wrapper: `px-6 py-4 border-b border-border flex items-center justify-between` with optional Lucide icon (`size={20} text-primary`) + title (`text-lg font-semibold`) + X close button
-- [ ] 5.5 Implement `Modal.Body` slot: `px-6 py-5 overflow-y-auto max-h-[60vh]`
-- [ ] 5.6 Implement `Modal.Footer` slot: `px-6 py-4 border-t border-border flex items-center justify-end gap-3`
-- [ ] 5.7 Create `client/src/components/ui/ConfirmModal.jsx` — wraps `<Modal size="sm">` with `type="danger"` layout: `<AlertTriangle size={24} className="text-danger" />` header icon, danger-colored title, muted message body, Cancel (secondary) + Danger action button in footer
+- [x] 5.1 Install shadcn dialog: `npx shadcn@latest add dialog` — installs Radix UI Dialog with Escape key, focus trap, backdrop click, and ARIA out of the box
+- [x] 5.2 Create `client/src/components/ui/Modal.jsx` — a convenience wrapper around `Dialog` / `DialogContent` / `DialogHeader` / `DialogFooter` accepting `isOpen`, `onClose`, `title`, `icon`, `size` (`sm` | `md` | `lg`) props
+- [x] 5.3 Override `DialogContent` className to match visual spec: `bg-card border-border shadow-modal mt-[10vh]` and size variants (`max-w-sm`, `max-w-lg`, `max-w-2xl`) via `cn()` utility
+- [x] 5.4 Implement `Modal.Header` inside the wrapper: `px-6 py-4 border-b border-border flex items-center justify-between` with optional Lucide icon (`size={20} text-primary`) + title (`text-lg font-semibold`) + X close button
+- [x] 5.5 Implement `Modal.Body` slot: `px-6 py-5 overflow-y-auto max-h-[60vh]`
+- [x] 5.6 Implement `Modal.Footer` slot: `px-6 py-4 border-t border-border flex items-center justify-end gap-3`
+- [x] 5.7 Create `client/src/components/ui/ConfirmModal.jsx` — wraps `<Modal size="sm">` with `type="danger"` layout: `<AlertTriangle size={24} className="text-danger" />` header icon, danger-colored title, muted message body, Cancel (secondary) + Danger action button in footer
 
 ---
 
 ## 6. Toaster System
 
-- [ ] 6.1 Install shadcn sonner: `npx shadcn@latest add sonner` — installs the `sonner` package and a pre-wired `<Toaster>` component
-- [ ] 6.2 Add `<Toaster />` to `client/src/app/layout.jsx` — render it once at the root level
-- [ ] 6.3 Configure `<Toaster>` props: `position="bottom-right"`, `theme="dark"`, `richColors={true}`, `closeButton={true}`, `duration={4000}`
+- [x] 6.1 Install shadcn sonner: `npx shadcn@latest add sonner` — installs the `sonner` package and a pre-wired `<Toaster>` component
+- [x] 6.2 Add `<Toaster />` to `client/src/app/layout.jsx` — render it once at the root level
+- [x] 6.3 Configure `<Toaster>` props: `position="bottom-right"`, `theme="dark"`, `richColors={true}`, `closeButton={true}`, `duration={4000}`
 - [ ] 6.4 Override Sonner's CSS variables in `globals.css` to match our palette: `--normal-bg`, `--normal-border`, `--success-bg`, `--success-border`, `--error-bg`, `--error-border` mapped to our surface/primary/danger tokens
-- [ ] 6.5 Call `toast.success('Title', { description: 'msg' })`, `toast.error()`, `toast.warning()`, `toast.info()` directly from Sonner — no custom context needed
+- [x] 6.5 Call `toast.success('Title', { description: 'msg' })`, `toast.error()`, `toast.warning()`, `toast.info()` directly from Sonner — no custom context needed
 - [ ] 6.6 Verify toast visual matches spec: left-accent border color per type, correct icon, title + message layout, auto-dismiss at 4s
 
 ## 7. Badge Component
 
-- [ ] 7.1 Install shadcn badge: `npx shadcn@latest add badge`
-- [ ] 7.2 Extend the CVA `variants.variant` object in `badge.jsx` with our 7 status variants: `active`/`paid` (`bg-primary/15 text-primary`), `pending` (`bg-muted/15 text-muted`), `partial` (`bg-primary/10 text-primary/70`), `cancelled` (`bg-border/40 text-muted/60`), `overdue` (`bg-danger/15 text-danger`), `inactive`/`exited` (`bg-background/60 text-muted/50`)
-- [ ] 7.3 Override base badge className to `inline-flex items-center gap-1 px-2 py-0.5 rounded-sm text-xs font-medium` (matching spec — shadcn default uses `rounded-full`, change to `rounded-sm`)
-- [ ] 7.4 Add `dot` prop: prepend `<span className="w-1.5 h-1.5 rounded-full bg-current" aria-hidden="true" />` when `dot={true}`
+- [x] 7.1 Install shadcn badge: `npx shadcn@latest add badge`
+- [x] 7.2 Extend the CVA `variants.variant` object in `badge.jsx` with our 7 status variants: `active`/`paid` (`bg-primary/15 text-primary`), `pending` (`bg-muted/15 text-muted`), `partial` (`bg-primary/10 text-primary/70`), `cancelled` (`bg-border/40 text-muted/60`), `overdue` (`bg-danger/15 text-danger`), `inactive`/`exited` (`bg-background/60 text-muted/50`)
+- [x] 7.3 Override base badge className to `inline-flex items-center gap-1 px-2 py-0.5 rounded-sm text-xs font-medium` (matching spec — shadcn default uses `rounded-full`, change to `rounded-sm`)
+- [x] 7.4 Add `dot` prop: prepend `<span className="w-1.5 h-1.5 rounded-full bg-current" aria-hidden="true" />` when `dot={true}`
 
 ---
 
 ## 8. Tooltip Component
 
-- [ ] 8.1 Install shadcn tooltip: `npx shadcn@latest add tooltip` — installs Radix UI Tooltip with placement, delay, and ARIA
-- [ ] 8.2 Render `<TooltipProvider delayDuration={300}>` once in the root layout wrapping the entire app
+- [x] 8.1 Install shadcn tooltip: `npx shadcn@latest add tooltip` — installs Radix UI Tooltip with placement, delay, and ARIA
+- [x] 8.2 Render `<TooltipProvider delayDuration={300}>` once in the root layout wrapping the entire app
 - [ ] 8.3 Override `TooltipContent` className to match spec: `bg-card border border-border text-xs text-foreground px-2 py-1 rounded-sm shadow-modal whitespace-nowrap max-w-[200px]`
 - [ ] 8.4 Create `client/src/components/ui/Tip.jsx` — convenience wrapper: `<Tip label="..."><child /></Tip>` that renders the full `Tooltip` + `TooltipTrigger` + `TooltipContent` boilerplate
 
@@ -97,14 +97,14 @@
 
 ## 10. Data Table Component
 
-- [ ] 10.1 Install shadcn table and skeleton: `npx shadcn@latest add table skeleton`
-- [ ] 10.2 Create `client/src/components/ui/DataTable.jsx` — wrapper accepting `columns`, `data`, `loading`, `emptyMessage`, `pagination` props; renders shadcn `Table` primitives inside a `w-full bg-card rounded-lg border border-border overflow-hidden` container
-- [ ] 10.3 Style `TableHeader` row: `bg-background border-b border-border`; style each `TableHead` cell: `px-4 py-3 text-xs font-medium text-muted uppercase tracking-wide text-left`
-- [ ] 10.4 Style `TableRow`: `border-b border-border last:border-0 hover:bg-border/20 transition-colors duration-100`; style `TableCell`: `px-4 py-3 text-sm text-foreground`
-- [ ] 10.5 Implement loading state: when `loading={true}`, render 5 skeleton rows — each cell contains `<Skeleton className="h-4 bg-border/30" />` at realistic widths
-- [ ] 10.6 Implement empty state: when `data` is empty and not loading, render a full-row centered section with `<Inbox size={32} className="text-muted mx-auto" />` + `text-sm text-muted mt-2 text-center` using `emptyMessage` prop
-- [ ] 10.7 Implement pagination bar: `flex justify-between items-center px-4 py-3 border-t border-border text-xs text-muted` with "Showing X–Y of Z results" and Prev/Next `<Button variant="secondary" size="sm">` buttons
-- [ ] 10.8 Create `client/src/components/ui/FilterToolbar.jsx` — `flex gap-3 items-center mb-4` with search `<InputWithIcon leftIcon={<Search size={16} />}>` and filter `<Select>` slots
+- [x] 10.1 Install shadcn table and skeleton: `npx shadcn@latest add table skeleton`
+- [x] 10.2 Create `client/src/components/ui/DataTable.jsx` — wrapper accepting `columns`, `data`, `loading`, `emptyMessage`, `pagination` props; renders shadcn `Table` primitives inside a `w-full bg-card rounded-lg border border-border overflow-hidden` container
+- [x] 10.3 Style `TableHeader` row: `bg-background border-b border-border`; style each `TableHead` cell: `px-4 py-3 text-xs font-medium text-muted uppercase tracking-wide text-left`
+- [x] 10.4 Style `TableRow`: `border-b border-border last:border-0 hover:bg-border/20 transition-colors duration-100`; style `TableCell`: `px-4 py-3 text-sm text-foreground`
+- [x] 10.5 Implement loading state: when `loading={true}`, render 5 skeleton rows — each cell contains `<Skeleton className="h-4 bg-border/30" />` at realistic widths
+- [x] 10.6 Implement empty state: when `data` is empty and not loading, render a full-row centered section with `<Inbox size={32} className="text-muted mx-auto" />` + `text-sm text-muted mt-2 text-center` using `emptyMessage` prop
+- [x] 10.7 Implement pagination bar: `flex justify-between items-center px-4 py-3 border-t border-border text-xs text-muted` with "Showing X–Y of Z results" and Prev/Next `<Button variant="secondary" size="sm">` buttons
+- [x] 10.8 Create `client/src/components/ui/FilterToolbar.jsx` — `flex gap-3 items-center mb-4` with search `<InputWithIcon leftIcon={<Search size={16} />}>` and filter `<Select>` slots
 
 ---
 
@@ -138,9 +138,9 @@
 
 ## 14. Properties Page
 
-- [ ] 14.1 Build Properties page with `<PageHeader>` + "Add Property" button, filter toolbar (search + status), and properties table with all 7 columns
-- [ ] 14.2 Build Add/Edit Property modal (`size="md"`): property name, address, type, rent, description, upload zone for agreement
-- [ ] 14.3 Wire delete action to `<ConfirmModal type="danger">` — "Delete Property"
+- [x] 14.1 Build Properties page with `<PageHeader>` + "Add Property" button, filter toolbar (search + status), and properties table with all 7 columns
+- [x] 14.2 Build Add/Edit Property modal (`size="md"`): property name, address, type, rent, description, upload zone for agreement
+- [x] 14.3 Wire delete action to `<ConfirmModal type="danger">` — "Delete Property"
 
 ---
 
