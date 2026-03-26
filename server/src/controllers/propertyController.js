@@ -1,6 +1,13 @@
 const Property = require('../models/Property');
 const Tenant = require('../models/Tenant');
 
+const MAX_SEARCH_LENGTH = 100;
+
+// Escape special regex characters to prevent regex injection / ReDoS
+function escapeRegex(str) {
+    return str.replace(/[.*+?^${}()|[\]\\-]/g, '\\$&');
+}
+
 // GET /api/properties
 async function getProperties(req, res) {
     const { search, type } = req.query;
@@ -8,9 +15,13 @@ async function getProperties(req, res) {
 
     if (type) filter.type = type;
     if (search) {
+        if (search.length > MAX_SEARCH_LENGTH) {
+            return res.status(400).json({ message: `Search query must not exceed ${MAX_SEARCH_LENGTH} characters` });
+        }
+        const safeSearch = escapeRegex(search);
         filter.$or = [
-            { name: { $regex: search, $options: 'i' } },
-            { address: { $regex: search, $options: 'i' } },
+            { name: { $regex: safeSearch, $options: 'i' } },
+            { address: { $regex: safeSearch, $options: 'i' } },
         ];
     }
 
