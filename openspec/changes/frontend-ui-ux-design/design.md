@@ -1,6 +1,6 @@
 ## Context
 
-Razvi Rental Management is a landlord-facing web application with 7 primary screens. The frontend is Next.js with Tailwind CSS and Lucide React icons. No design system exists yet. Every component will be built from scratch, so all visual decisions must be locked down in this document before implementation begins. The audience is a single admin landlord — the UI should feel professional, trustworthy, and data-dense without being cluttered.
+Razvi Rental Management is a landlord-facing web application with 7 primary screens. The frontend is Next.js with Tailwind CSS and Lucide React icons. **shadcn/ui** is used as the component base layer — its primitives (Button, Input, Select, Textarea, Dialog, Badge, Tooltip, Table, Skeleton, Separator, Sonner) are installed and then themed with the Obsidian Dark token set by overriding shadcn's CSS variables. Components not covered by shadcn/ui (UploadZone, StatCard, FilterToolbar, PageHeader, Sidebar, AppShell) are built as custom Tailwind components. All visual decisions must be locked down here so the theming is applied consistently across both shadcn components and custom components. The audience is a single admin landlord — the UI should feel professional, trustworthy, and data-dense without being cluttered.
 
 ## Goals / Non-Goals
 
@@ -30,6 +30,31 @@ Razvi Rental Management is a landlord-facing web application with 7 primary scre
 
 ---
 
+### D1b — Component Library: shadcn/ui
+
+**Decision:** shadcn/ui is used as the UI primitive layer. Components are installed via `npx shadcn@latest add <component>` into `client/src/components/ui/`. This copies the component source into the project where it can be freely modified. Radix UI is the underlying accessibility/behaviour layer (installed automatically by shadcn). The `sonner` package is used for toast notifications (shadcn's recommended toaster).
+
+**Rationale:** shadcn/ui provides production-quality accessible components (keyboard navigation, focus management, ARIA roles) out of the box, eliminating the need to re-implement these from scratch. Its Tailwind + CSS-variable architecture is purpose-built for the kind of theme customisation this project requires. The component source lives in our repo so there is no black-box dependency.
+
+**shadcn/ui primitive → design decision mapping:**
+
+| shadcn component | Covers design decision |
+|---|---|
+| `button` | D5 — Button Variants |
+| `input`, `select`, `textarea`, `label` | D6 — Input Fields |
+| `dialog` | D7 — Modal Design |
+| `sonner` (via `sonner` package) | D8 — Toaster Notifications |
+| `tooltip` | D9 — Tooltips |
+| `badge` | D10 — Badge / Status Chip |
+| `table` | D11 — Tables |
+| `skeleton` | Table loading state |
+| `separator` | Dividers / visual separators |
+
+**Custom-built (not in shadcn/ui):**
+`UploadZone`, `StatCard`, `FilterToolbar`, `PageHeader`, `Sidebar`, `AppShell`, `ConfirmModal` wrapper, `FilterToolbar`
+
+---
+
 ### D2 — The 6-Color Palette
 
 These are the ONLY colors used anywhere in the application. Every background, text, border, button, badge, shadow, and icon SHALL use one of these six tokens. No other color values are permitted.
@@ -49,18 +74,51 @@ These are the ONLY colors used anywhere in the application. Every background, te
 - **Warning**: `--color-muted` at 20% opacity background + `--color-text` text
 - **Info**: `--color-primary` at 10% opacity background + `--color-primary` text/icon
 
-**Tailwind config extension:**
-```js
-colors: {
-  bg: '#0F1117',
-  surface: '#1A1D27',
-  border: '#2E3244',
-  primary: '#6C63FF',
-  text: '#E8EAF0',
-  muted: '#6B7280',
-  danger: '#EF4444',
+**shadcn/ui CSS variable mapping (`globals.css`):**
+
+shadcn/ui expects CSS variables in HSL format on `.dark` (or `:root` for a dark-only app). Map our palette to shadcn's variable names:
+
+```css
+:root {
+  --background:          230 15% 8%;    /* #0F1117 — bg */
+  --foreground:          220 20% 93%;   /* #E8EAF0 — text */
+  --card:                230 22% 13%;   /* #1A1D27 — surface */
+  --card-foreground:     220 20% 93%;   /* #E8EAF0 — text */
+  --popover:             230 22% 13%;   /* #1A1D27 — surface */
+  --popover-foreground:  220 20% 93%;   /* #E8EAF0 — text */
+  --primary:             244 100% 69%;  /* #6C63FF */
+  --primary-foreground:  0 0% 100%;     /* white */
+  --secondary:           230 22% 13%;   /* #1A1D27 — surface */
+  --secondary-foreground:220 20% 93%;   /* #E8EAF0 — text */
+  --muted:               230 22% 13%;   /* #1A1D27 — surface */
+  --muted-foreground:    220 9% 46%;    /* #6B7280 — muted */
+  --accent:              230 22% 18%;   /* slightly lighter surface for hover */
+  --accent-foreground:   220 20% 93%;   /* #E8EAF0 — text */
+  --destructive:         0 84% 60%;     /* #EF4444 — danger */
+  --destructive-foreground: 0 0% 100%;  /* white */
+  --border:              230 22% 23%;   /* #2E3244 */
+  --input:               230 22% 23%;   /* #2E3244 */
+  --ring:                244 100% 69%;  /* #6C63FF — primary (focus ring) */
+  --radius:              0.5rem;
 }
 ```
+
+These are the ONLY CSS variable values used. shadcn components consume them automatically. Custom components reference these via Tailwind's `bg-background`, `text-foreground`, `bg-card`, `border-border`, etc.
+
+**Tailwind config extension (semantic aliases for use in custom components):**
+```js
+colors: {
+  bg: 'hsl(var(--background))',
+  surface: 'hsl(var(--card))',
+  border: 'hsl(var(--border))',
+  primary: 'hsl(var(--primary))',
+  text: 'hsl(var(--foreground))',
+  muted: 'hsl(var(--muted-foreground))',
+  danger: 'hsl(var(--destructive))',
+}
+```
+
+This means both `bg-background` (shadcn convention) and `bg-bg` (our shorthand) resolve to the same color.
 
 ---
 
@@ -113,6 +171,16 @@ All `color: --color-text`. Secondary text uses `color: --color-muted`.
 
 ### D5 — Button Variants
 
+**Implementation:** Use shadcn's `button` component (`client/src/components/ui/button.jsx`). It ships with `default`, `secondary`, `ghost`, `destructive`, `outline`, and `link` variants and `default`, `sm`, `lg`, `icon` sizes via CVA. Extend it with a `loading` prop and map variant names to our conventions:
+
+| Our variant | shadcn variant | Notes |
+|---|---|---|
+| `primary` | `default` | rename alias in our wrapper |
+| `secondary` | `secondary` | direct match |
+| `ghost` | `ghost` | direct match |
+| `danger` | `destructive` | rename alias |
+| `icon` | `size="icon"` | size prop, not variant |
+
 All buttons use `rounded-md`, `text-sm font-medium`, `px-4 py-2` (normal) or `px-3 py-1.5` (small), `transition-all duration-150`.
 
 | Variant | Background | Text | Border | Hover | Use |
@@ -135,6 +203,8 @@ All buttons use `rounded-md`, `text-sm font-medium`, `px-4 py-2` (normal) or `px
 ---
 
 ### D6 — Input Fields
+
+**Implementation:** Use shadcn's `input`, `select`, `textarea`, and `label` components. They inherit all states (focus ring, disabled, error) from our CSS variable values automatically. Wrap them in a custom `FormField.jsx` helper that adds the label above, helper text below, and error message with `<AlertCircle size={12} />` — this wrapper is the component used across all forms.
 
 All inputs: `bg-surface border border-border rounded-md px-3 py-2 text-sm text-text placeholder:text-muted w-full transition-colors duration-150`
 
@@ -159,6 +229,8 @@ All inputs: `bg-surface border border-border rounded-md px-3 py-2 text-sm text-t
 ---
 
 ### D7 — Modal Design
+
+**Implementation:** Use shadcn's `dialog` component (`Dialog`, `DialogContent`, `DialogHeader`, `DialogTitle`, `DialogDescription`, `DialogFooter`). It uses Radix UI Dialog underneath which handles Escape key, focus trap, backdrop click, and ARIA roles automatically. Wrap it in a `Modal.jsx` convenience component that accepts `isOpen`, `onClose`, `title`, `icon`, `size`, and renders the header/body/footer structure defined below.
 
 **Overlay:** `fixed inset-0 bg-bg/80 backdrop-blur-sm z-50`  
 **Container:** `bg-surface rounded-lg shadow-modal border border-border max-w-lg w-full mx-auto mt-[10vh] p-6`  
@@ -199,6 +271,8 @@ All inputs: `bg-surface border border-border rounded-md px-3 py-2 text-sm text-t
 
 ### D8 — Toaster Notifications
 
+**Implementation:** Use the `sonner` package installed via `npx shadcn@latest add sonner`. Render `<Toaster />` from `sonner` in the root layout. Call `toast.success()`, `toast.error()`, `toast.warning()`, `toast.info()` throughout the app. Theme it by passing the `theme`, `toastOptions` props to match our CSS variables. The visual spec below defines what each toast type should look like — implement this via `toastOptions.classNames` in the `<Toaster>` configuration.
+
 **Position:** Fixed `bottom-right` — `fixed bottom-5 right-5 z-50 flex flex-col gap-2`  
 **Container:** `bg-surface border border-border rounded-lg shadow-toast px-4 py-3 flex items-start gap-3 min-w-[300px] max-w-[400px]`  
 **Animation:** Slide in from right + fade → auto-dismiss after 4s with fade-out  
@@ -219,6 +293,8 @@ All inputs: `bg-surface border border-border rounded-md px-3 py-2 text-sm text-t
 
 ### D9 — Tooltips
 
+**Implementation:** Use shadcn's `tooltip` component (`TooltipProvider`, `Tooltip`, `TooltipTrigger`, `TooltipContent`). It uses Radix UI Tooltip underneath which handles open/close delay, placement, and ARIA automatically. Style `TooltipContent` via our CSS variables so it matches the visual spec below. Wrap `TooltipProvider` at the root layout level once.
+
 **Trigger:** Hover or focus on any element with `title` or `data-tooltip` attribute  
 **Container:** `bg-surface border border-border text-xs text-text px-2 py-1 rounded-sm shadow-modal whitespace-nowrap`  
 **Arrow:** 4px CSS triangle pointing toward the trigger  
@@ -229,6 +305,8 @@ All inputs: `bg-surface border border-border rounded-md px-3 py-2 text-sm text-t
 ---
 
 ### D10 — Badge / Status Chip
+
+**Implementation:** Use shadcn's `badge` component. It ships with `default`, `secondary`, `outline`, `destructive` variants. Extend it with our 7 status variants (`active`, `paid`, `pending`, `partial`, `cancelled`, `overdue`, `inactive`) by adding them to the CVA config in `badge.jsx`.
 
 `inline-flex items-center gap-1 px-2 py-0.5 rounded-sm text-xs font-medium`
 
@@ -246,6 +324,8 @@ Optional leading dot: `w-1.5 h-1.5 rounded-full bg-current`
 ---
 
 ### D11 — Tables
+
+**Implementation:** Use shadcn's `table` components (`Table`, `TableHeader`, `TableBody`, `TableRow`, `TableHead`, `TableCell`, `TableCaption`). Wrap them in a custom `DataTable.jsx` component that accepts `columns`, `data`, `loading`, and `emptyMessage` props, and handles the skeleton loading rows, empty state, and pagination bar on top of shadcn's unstyled table primitives.
 
 **Container:** `w-full bg-surface rounded-lg border border-border overflow-hidden`  
 **Header row:** `bg-bg border-b border-border`  
@@ -383,6 +463,9 @@ Export buttons in page header right slot
 | Purple primary (`#6C63FF`) on dark background may have contrast issues for small text | Minimum body text on `--color-surface` background passes WCAG AA; validate with contrast checker at build time |
 | Single theme may feel limiting to some users | Explicit non-goal — document as a v2 consideration; adds zero complexity risk to v1 |
 | Tailwind purge may strip dynamically generated classes like `border-primary/15` | Safelist dynamic opacity variants in `tailwind.config.js` `safelist` array |
+| shadcn CSS variables use HSL format but Tailwind color tokens use hex — mismatch | Tailwind color tokens are defined as `hsl(var(--token))` wrappers so both systems stay in sync from a single source of truth in `globals.css` |
+| shadcn ships new components with light-mode defaults; dark theme variables may not apply | Always run `npx shadcn@latest init` with `baseColor: slate` and `cssVariables: true`; immediately override `:root` with Obsidian Dark values before adding any component |
+| shadcn component updates may overwrite customisations | shadcn copies source into the repo — it is never auto-updated. Treat installed files as owned code. |
 
 ## Open Questions
 
