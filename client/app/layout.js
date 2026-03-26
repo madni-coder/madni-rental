@@ -27,7 +27,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${oxanium.variable} ${merriweather.variable} ${firaCode.variable} h-full antialiased`}>
+    <html lang="en" suppressHydrationWarning className={`${oxanium.variable} ${merriweather.variable} ${firaCode.variable} h-full antialiased`}>
       <body className="min-h-full bg-background text-foreground [&_svg]:stroke-[1.75]">
         <ThemeProvider>
           <TooltipProvider delayDuration={300}>
