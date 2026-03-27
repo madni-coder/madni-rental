@@ -164,7 +164,7 @@ export default function PropertiesPage() {
         toast.success('Property created');
       }
       setFormOpen(false);
-      // dataVersion increment (via api:mutate event) triggers the useEffect re-fetch
+      fetchProperties();
     } catch (err) {
       const serverErrors = err.response?.data?.errors;
       if (serverErrors) {
@@ -193,7 +193,7 @@ export default function PropertiesPage() {
       await api.delete(`/api/properties/${deleteTarget._id}`);
       toast.success('Property deleted');
       setDeleteTarget(null);
-      // dataVersion increment (via api:mutate event) triggers the useEffect re-fetch
+      fetchProperties();
     } catch (err) {
       toast.error('Cannot delete property', {
         description: err.response?.data?.message || 'Please try again.',

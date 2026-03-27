@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
+const mongoSanitize = require('express-mongo-sanitize');
 const connectDB = require('./lib/db');
 
 const authRoutes = require('./routes/authRoutes');
@@ -21,6 +22,13 @@ app.use(
 );
 app.use(cookieParser());
 app.use(express.json());
+// express-mongo-sanitize middleware reassigns req.query which is read-only in Express 5.
+// Sanitize body and params directly instead.
+app.use((req, _res, next) => {
+    mongoSanitize.sanitize(req.body);
+    mongoSanitize.sanitize(req.params);
+    next();
+});
 
 // Rate limiting on auth routes
 const authLimiter = rateLimit({
