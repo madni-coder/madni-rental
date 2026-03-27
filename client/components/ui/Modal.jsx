@@ -26,6 +26,7 @@ export default function Modal({
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent
+        aria-describedby={undefined}
         className={cn(
           'bg-card border-border p-0 mt-[10vh]',
           sizeClasses[size]

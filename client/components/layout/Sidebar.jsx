@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import {
   LayoutDashboard,
   Building2,
@@ -30,6 +31,9 @@ export default function Sidebar() {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
   const { logout } = useAuth();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
 
   return (
     <aside className="fixed top-0 left-0 w-60 h-screen bg-card border-r border-border flex flex-col z-30">
@@ -71,8 +75,8 @@ export default function Sidebar() {
           className="flex items-center gap-2 w-full px-3 py-2 rounded-md text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-colors duration-100"
           onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
         >
-          {theme === 'dark' ? <Sun size={16} aria-hidden="true" /> : <Moon size={16} aria-hidden="true" />}
-          {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+          {mounted && (theme === 'dark' ? <Sun size={16} aria-hidden="true" /> : <Moon size={16} aria-hidden="true" />)}
+          {mounted && (theme === 'dark' ? 'Light Mode' : 'Dark Mode')}
         </button>
         <button
           className="flex items-center gap-2 w-full px-3 py-2 rounded-md text-sm text-muted-foreground hover:bg-accent hover:text-destructive transition-colors duration-100"
