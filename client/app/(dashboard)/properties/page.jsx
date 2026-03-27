@@ -22,6 +22,7 @@ import {
   SelectItem,
 } from '@/components/ui/select';
 import api from '@/lib/axios';
+import { useAuth } from '@/context/AuthContext';
 
 const PROPERTY_TYPES = [
   { value: 'apartment', label: 'Apartment' },
@@ -50,6 +51,7 @@ function typeLabel(type) {
 }
 
 export default function PropertiesPage() {
+  const { dataVersion } = useAuth();
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -88,7 +90,7 @@ export default function PropertiesPage() {
 
   useEffect(() => {
     fetchProperties();
-  }, [fetchProperties]);
+  }, [fetchProperties, dataVersion]);
 
   // ── Form helpers ──────────────────────────────────────────────────
   function openCreate() {
@@ -162,7 +164,7 @@ export default function PropertiesPage() {
         toast.success('Property created');
       }
       setFormOpen(false);
-      fetchProperties();
+      // dataVersion increment (via api:mutate event) triggers the useEffect re-fetch
     } catch (err) {
       const serverErrors = err.response?.data?.errors;
       if (serverErrors) {
@@ -191,7 +193,7 @@ export default function PropertiesPage() {
       await api.delete(`/api/properties/${deleteTarget._id}`);
       toast.success('Property deleted');
       setDeleteTarget(null);
-      fetchProperties();
+      // dataVersion increment (via api:mutate event) triggers the useEffect re-fetch
     } catch (err) {
       toast.error('Cannot delete property', {
         description: err.response?.data?.message || 'Please try again.',

@@ -9,6 +9,7 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [dataVersion, setDataVersion] = useState(0);
     const router = useRouter();
 
     useEffect(() => {
@@ -16,6 +17,14 @@ export function AuthProvider({ children }) {
             .then((res) => setUser(res.data))
             .catch(() => setUser(null))
             .finally(() => setLoading(false));
+    }, []);
+
+    // Increment dataVersion whenever any mutation (POST/PUT/PATCH/DELETE) succeeds.
+    // Pages add `dataVersion` to their fetch useEffect deps to auto-refresh.
+    useEffect(() => {
+        const handler = () => setDataVersion((v) => v + 1);
+        window.addEventListener('api:mutate', handler);
+        return () => window.removeEventListener('api:mutate', handler);
     }, []);
 
     const login = useCallback(async (email, password) => {
@@ -31,7 +40,7 @@ export function AuthProvider({ children }) {
     }, [router]);
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, logout }}>
+        <AuthContext.Provider value={{ user, loading, login, logout, dataVersion }}>
             {children}
         </AuthContext.Provider>
     );
