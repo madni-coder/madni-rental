@@ -16,6 +16,7 @@ export default function DataTable({
   loading = false,
   emptyMessage = 'No records found.',
   pagination,
+  onRowClick,
 }) {
   return (
     <div className="w-full bg-card rounded-lg border border-border overflow-hidden">
@@ -54,7 +55,8 @@ export default function DataTable({
             data.map((row, i) => (
               <TableRow
                 key={row._id || i}
-                className="border-b border-border last:border-0 hover:bg-border/20 transition-colors duration-100"
+                className={`border-b border-border last:border-0 hover:bg-border/20 transition-colors duration-100${onRowClick ? ' cursor-pointer' : ''}`}
+                onClick={onRowClick ? () => onRowClick(row) : undefined}
               >
                 {columns.map((col) => (
                   <TableCell key={col.key} className="px-4 py-3 text-sm text-foreground">

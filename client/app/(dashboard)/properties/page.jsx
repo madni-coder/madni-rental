@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Building2, Plus, Pencil, Trash2 } from 'lucide-react';
+import PropertyDetailModal from '@/components/properties/PropertyDetailModal';
 import { toast } from 'sonner';
 import PageHeader from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/button';
@@ -60,6 +61,9 @@ export default function PropertiesPage() {
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [formErrors, setFormErrors] = useState({});
   const [formLoading, setFormLoading] = useState(false);
+
+  // Detail modal state
+  const [detailId, setDetailId] = useState(null);
 
   // Delete state
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -249,7 +253,7 @@ export default function PropertiesPage() {
           <Button
             variant="ghost"
             size="icon-sm"
-            onClick={() => openEdit(row)}
+            onClick={(e) => { e.stopPropagation(); openEdit(row); }}
             aria-label="Edit property"
           >
             <Pencil size={14} aria-hidden="true" />
@@ -258,7 +262,7 @@ export default function PropertiesPage() {
             variant="ghost"
             size="icon-sm"
             className="hover:text-destructive"
-            onClick={() => openDelete(row)}
+            onClick={(e) => { e.stopPropagation(); openDelete(row); }}
             aria-label="Delete property"
           >
             <Trash2 size={14} aria-hidden="true" />
@@ -299,6 +303,7 @@ export default function PropertiesPage() {
         data={properties}
         loading={loading}
         emptyMessage="No properties yet. Add your first property to get started."
+        onRowClick={(row) => setDetailId(row._id)}
       />
 
       {/* Add / Edit Property Modal */}
@@ -416,6 +421,14 @@ export default function PropertiesPage() {
           </FormField>
         </div>
       </Modal>
+
+      {/* Property Detail Modal */}
+      <PropertyDetailModal
+        propertyId={detailId}
+        onClose={() => setDetailId(null)}
+        onEdit={(property) => { setDetailId(null); openEdit(property); }}
+        onDelete={(property) => { setDetailId(null); openDelete(property); }}
+      />
 
       {/* Delete Confirm Modal */}
       <ConfirmModal

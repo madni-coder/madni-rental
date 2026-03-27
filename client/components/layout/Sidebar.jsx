@@ -14,6 +14,7 @@ import {
   Moon,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
+import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -28,6 +29,7 @@ const navItems = [
 export default function Sidebar() {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
+  const { logout } = useAuth();
 
   return (
     <aside className="fixed top-0 left-0 w-60 h-screen bg-card border-r border-border flex flex-col z-30">
@@ -74,7 +76,7 @@ export default function Sidebar() {
         </button>
         <button
           className="flex items-center gap-2 w-full px-3 py-2 rounded-md text-sm text-muted-foreground hover:bg-accent hover:text-destructive transition-colors duration-100"
-          onClick={() => {/* logout handled in AuthContext */}}
+          onClick={logout}
         >
           <LogOut size={16} aria-hidden="true" />
           Logout

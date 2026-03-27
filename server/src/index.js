@@ -3,10 +3,10 @@ const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
-const mongoSanitize = require('express-mongo-sanitize');
 const rateLimit = require('express-rate-limit');
 const connectDB = require('./lib/db');
 
+const authRoutes = require('./routes/authRoutes');
 const propertyRoutes = require('./routes/propertyRoutes');
 
 const app = express();
@@ -21,7 +21,6 @@ app.use(
 );
 app.use(cookieParser());
 app.use(express.json());
-app.use(mongoSanitize());
 
 // Rate limiting on auth routes
 const authLimiter = rateLimit({
@@ -34,6 +33,7 @@ const authLimiter = rateLimit({
 app.use('/api/auth', authLimiter);
 
 // Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/properties', propertyRoutes);
 
 // Health check
