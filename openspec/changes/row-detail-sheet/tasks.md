@@ -1,22 +1,22 @@
 ## 1. Cleanup — Remove Modal Artifacts
 
-- [ ] 1.1 Delete `client/components/properties/PropertyDetailModal.jsx` (replaced by sheet)
-- [ ] 1.2 Remove `PropertyDetailModal` import and usage from `client/app/(dashboard)/properties/page.jsx`
-- [ ] 1.3 Revert `e.stopPropagation()` calls on property table row action buttons (will be re-added in sheet wiring step)
+- [x] 1.1 Delete `client/components/properties/PropertyDetailModal.jsx` (replaced by sheet)
+- [x] 1.2 Remove `PropertyDetailModal` import and usage from `client/app/(dashboard)/properties/page.jsx`
+- [x] 1.3 Revert `e.stopPropagation()` calls on property table row action buttons (will be re-added in sheet wiring step)
 
 ## 2. Sheet Primitive
 
-- [ ] 2.1 Run `pnpm dlx shadcn@latest add sheet` inside `client/` to generate `client/components/ui/sheet.jsx`
-- [ ] 2.2 Verify `sheet.jsx` exports: `Sheet`, `SheetContent`, `SheetHeader`, `SheetTitle`, `SheetFooter`, `SheetClose`, `SheetDescription`
-- [ ] 2.3 Confirm the generated sheet uses `side="right"` by default (or set it as the default prop)
+- [x] 2.1 Run `pnpm dlx shadcn@latest add sheet` inside `client/` to generate `client/components/ui/sheet.jsx`
+- [x] 2.2 Verify `sheet.jsx` exports: `Sheet`, `SheetContent`, `SheetHeader`, `SheetTitle`, `SheetFooter`, `SheetClose`, `SheetDescription`
+- [x] 2.3 Confirm the generated sheet uses `side="right"` by default (or set it as the default prop)
 
 ## 3. Property Detail Sheet
 
-- [ ] 3.1 Create `client/components/properties/PropertyDetailSheet.jsx` — accepts `propertyId`, `isOpen`, `onClose`, `onRefresh` props; fetches `GET /api/properties/:id` on open; shows skeleton while loading; shows error + Retry on failure
-- [ ] 3.2 Build view mode: render all fields (Name, Type badge, Floors, Area, Planned Rent ₹, Address, Amenities tags, Notes) with an Edit button and Delete button in the sheet footer
-- [ ] 3.3 Build edit mode: embed the existing property form fields inline in the sheet; include Save and Cancel buttons; on save call `PUT /api/properties/:id`, show toast, call `onRefresh()`, return to view mode
-- [ ] 3.4 Wire Delete button: open `ConfirmModal` from within the sheet; on confirm call `DELETE /api/properties/:id`, close sheet, call `onRefresh()`
-- [ ] 3.5 Update `client/app/(dashboard)/properties/page.jsx` — add `detailId` state; add `onRowClick={(row) => setDetailId(row._id)}` to `DataTable`; add `e.stopPropagation()` to edit/delete icon buttons in the actions column; render `<PropertyDetailSheet>` with correct props
+- [x] 3.1 Create `client/components/properties/PropertyDetailSheet.jsx` — accepts `propertyId`, `isOpen`, `onClose`, `onRefresh` props; fetches `GET /api/properties/:id` on open; shows skeleton while loading; shows error + Retry on failure
+- [x] 3.2 Build view mode: render all fields (Name, Type badge, Floors, Area, Planned Rent ₹, Address, Amenities tags, Notes) with an Edit button and Delete button in the sheet footer
+- [x] 3.3 Build edit mode: embed the existing property form fields inline in the sheet; include Save and Cancel buttons; on save call `PUT /api/properties/:id`, show toast, call `onRefresh()`, return to view mode
+- [x] 3.4 Wire Delete button: open `ConfirmModal` from within the sheet; on confirm call `DELETE /api/properties/:id`, close sheet, call `onRefresh()`
+- [x] 3.5 Update `client/app/(dashboard)/properties/page.jsx` — add `detailId` state; add `onRowClick={(row) => setDetailId(row._id)}` to `DataTable`; add `e.stopPropagation()` to edit/delete icon buttons in the actions column; render `<PropertyDetailSheet>` with correct props
 
 ## 4. Tenant Detail Sheet
 
