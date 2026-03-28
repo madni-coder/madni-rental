@@ -1,18 +1,18 @@
 ## 1. Project Setup & Configuration
 
-- [ ] 1.1 Initialise Next.js 14+ client project with App Router and JavaScript (`npx create-next-app@latest` — select JavaScript, no TypeScript)
-- [ ] 1.2 Install and configure Tailwind CSS in the client project
-- [ ] 1.3 Install client dependencies: `axios`, `lucide-react`, `jspdf`, `jspdf-autotable`, `xlsx`
-- [ ] 1.4 Initialise Express server project (`server/`) with `npm init -y`; install server dependencies: `express`, `mongoose`, `bcryptjs`, `jsonwebtoken`, `cookie-parser`, `cors`, `helmet`, `express-rate-limit`, `express-validator`, `multer`, `cloudinary`, `twilio`, `node-cron`, `dotenv`
-- [ ] 1.5 Create `server/src/lib/db.js` — MongoDB connection singleton using Mongoose
-- [ ] 1.6 Create `server/src/index.js` — Express app bootstrap: apply `helmet`, `cors` (allow client origin), `cookie-parser`, JSON body parser, mount all routers under `/api`, start server
-- [ ] 1.7 Configure environment variables for both projects: `MONGODB_URI`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `CLIENT_URL`, `CLOUDINARY_*`, `TWILIO_*`, `ENCRYPTION_KEY`, `PORT`
-- [ ] 1.8 Create `client/src/lib/axios.js` — Axios instance with `baseURL` pointing to Express server and `withCredentials: true`
+- [x] 1.1 Initialise Next.js 14+ client project with App Router and JavaScript (`npx create-next-app@latest` — select JavaScript, no TypeScript)
+- [x] 1.2 Install and configure Tailwind CSS in the client project
+- [x] 1.3 Install client dependencies: `axios`, `lucide-react`, `jspdf`, `jspdf-autotable`, `xlsx`
+- [x] 1.4 Initialise Express server project (`server/`) with `npm init -y`; install server dependencies: `express`, `mongoose`, `bcryptjs`, `jsonwebtoken`, `cookie-parser`, `cors`, `helmet`, `express-rate-limit`, `express-validator`, `multer`, `cloudinary`, `twilio`, `node-cron`, `dotenv`
+- [x] 1.5 Create `server/src/lib/db.js` — MongoDB connection singleton using Mongoose
+- [x] 1.6 Create `server/src/index.js` — Express app bootstrap: apply `helmet`, `cors` (allow client origin), `cookie-parser`, JSON body parser, mount all routers under `/api`, start server
+- [x] 1.7 Configure environment variables for both projects: `MONGODB_URI`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `CLIENT_URL`, `CLOUDINARY_*`, `TWILIO_*`, `ENCRYPTION_KEY`, `PORT`
+- [x] 1.8 Create `client/src/lib/axios.js` — Axios instance with `baseURL` pointing to Express server and `withCredentials: true`
 
 ## 2. Database Models
 
 - [ ] 2.1 Create `server/src/models/User.js` — fields: name, email, passwordHash, createdAt
-- [ ] 2.2 Create `server/src/models/Property.js` — fields: userId, name, type, floors, areaSqFt, plannedRent, address, amenities[], notes
+- [x] 2.2 Create `server/src/models/Property.js` — fields: userId, name, type, floors, areaSqFt, plannedRent, address, amenities[], notes
 - [ ] 2.3 Create `server/src/models/Tenant.js` — fields: userId, propertyId, fullName, phone, email, emergencyContact, aadhaar (encrypted), pan (encrypted), monthlyRent, securityDeposit, paymentDueDate, startDate, endDate, rentAgreementUrl, notes, isActive
 - [ ] 2.4 Create `server/src/models/Bill.js` — fields: userId, tenantId, propertyId, month, year, totalAmount, dueAmount, dueDate, status (pending/partial/paid/cancelled)
 - [ ] 2.5 Create `server/src/models/Payment.js` — fields: billId, tenantId, propertyId, amount, alreadyPaid, remaining, paymentMode, collectedBy, paymentDate, remarks
@@ -22,7 +22,7 @@
 ## 3. Authentication
 
 - [ ] 3.1 Create `server/src/lib/encryption.js` — AES-256 encrypt/decrypt helpers using Node.js `crypto` and `ENCRYPTION_KEY` env var
-- [ ] 3.2 Create `server/src/middleware/auth.js` — Express middleware: reads JWT from HTTP-only cookie, verifies with `jsonwebtoken`, attaches `req.user`; returns 401 if invalid
+- [x] 3.2 Create `server/src/middleware/auth.js` — Express middleware: reads JWT from HTTP-only cookie, verifies with `jsonwebtoken`, attaches `req.user`; returns 401 if invalid
 - [ ] 3.3 Create `server/src/routes/auth.js` + `server/src/controllers/authController.js` — `POST /api/auth/register` (hash password, reject duplicate email), `POST /api/auth/login` (verify password, sign JWT, set HTTP-only cookie), `GET /api/auth/me` (return current user from token), `POST /api/auth/logout` (clear cookie)
 - [ ] 3.4 Create `client/src/context/AuthContext.jsx` — React context providing `user`, `login()`, `logout()` backed by calls to `/api/auth/me`, `/api/auth/login`, `/api/auth/logout` via Axios
 - [ ] 3.5 Create `client/src/app/(auth)/login/page.jsx` — login form (email + password) with error display; calls `login()` from AuthContext on submit
@@ -38,12 +38,12 @@
 
 ## 5. Property Management
 
-- [ ] 5.1 Create `server/src/routes/properties.js` + `server/src/controllers/propertyController.js` — `GET /api/properties` (list), `POST /api/properties` (create), `GET /api/properties/:id`, `PUT /api/properties/:id`, `DELETE /api/properties/:id` (with active-tenant guard); all routes protected by `auth` middleware
-- [ ] 5.2 Add express-validator rules for property create/update in `server/src/middleware/validate.js`
-- [ ] 5.3 Create `client/src/app/(dashboard)/properties/page.jsx` — property list page; fetches from `/api/properties` via Axios
-- [ ] 5.4 Build `PropertyForm` component — create and edit modes; fields: name, type (select), floors, areaSqFt, plannedRent, address, amenities (tag input), notes
-- [ ] 5.5 Wire PropertyForm into a Modal for create & edit; POST/PUT to `/api/properties` via Axios on submit
-- [ ] 5.6 Add delete confirmation dialog; show error toast if Express returns 409 (active tenants)
+- [x] 5.1 Create `server/src/routes/properties.js` + `server/src/controllers/propertyController.js` — `GET /api/properties` (list), `POST /api/properties` (create), `GET /api/properties/:id`, `PUT /api/properties/:id`, `DELETE /api/properties/:id` (with active-tenant guard); all routes protected by `auth` middleware
+- [x] 5.2 Add express-validator rules for property create/update in `server/src/middleware/validate.js`
+- [x] 5.3 Create `client/src/app/(dashboard)/properties/page.jsx` — property list page; fetches from `/api/properties` via Axios
+- [x] 5.4 Build `PropertyForm` component — create and edit modes; fields: name, type (select), floors, areaSqFt, plannedRent, address, amenities (tag input), notes
+- [x] 5.5 Wire PropertyForm into a Modal for create & edit; POST/PUT to `/api/properties` via Axios on submit
+- [x] 5.6 Add delete confirmation dialog; show error toast if Express returns 409 (active tenants)
 
 ## 6. Tenant Management
 
