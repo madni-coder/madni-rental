@@ -22,21 +22,20 @@ import { useTheme } from "@/context/ThemeContext";
 
 const navItems = [
   {
-    href: "/properties",
-    icon: Building2,
-    label: "Properties",
-  },
-  {
     disabled: true,
     icon: LayoutDashboard,
     label: "Dashboard",
     title: "Dashboard will be added later.",
   },
   {
-    disabled: true,
+    href: "/properties",
+    icon: Building2,
+    label: "Properties",
+  },
+  {
+    href: "/tenants",
     icon: Users,
     label: "Tenants",
-    title: "Tenant management will be added later.",
   },
   {
     disabled: true,

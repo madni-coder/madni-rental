@@ -3,10 +3,10 @@
 - [ ] 1.1 Initialise Next.js 14+ client project with App Router and JavaScript (`npx create-next-app@latest` — select JavaScript, no TypeScript)
 - [ ] 1.2 Install and configure Tailwind CSS in the client project
 - [ ] 1.3 Install client dependencies: `axios`, `lucide-react`, `jspdf`, `jspdf-autotable`, `xlsx`
-- [ ] 1.4 Initialise Express server project (`server/`) with `npm init -y`; install server dependencies: `express`, `mongoose`, `bcryptjs`, `jsonwebtoken`, `cookie-parser`, `cors`, `helmet`, `express-rate-limit`, `express-validator`, `multer`, `cloudinary`, `twilio`, `node-cron`, `dotenv`
+- [ ] 1.4 Initialise Express server project (`server/`) with `npm init -y`; install server dependencies: `express`, `mongoose`, `bcryptjs`, `jsonwebtoken`, `cookie-parser`, `cors`, `helmet`, `express-rate-limit`, `express-validator`, `multer`, `multer-gridfs-storage`, `gridfs-stream`, `twilio`, `node-cron`, `dotenv`
 - [ ] 1.5 Create `server/src/lib/db.js` — MongoDB connection singleton using Mongoose
 - [ ] 1.6 Create `server/src/index.js` — Express app bootstrap: apply `helmet`, `cors` (allow client origin), `cookie-parser`, JSON body parser, mount all routers under `/api`, start server
-- [ ] 1.7 Configure environment variables for both projects: `MONGODB_URI`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `CLIENT_URL`, `CLOUDINARY_*`, `TWILIO_*`, `ENCRYPTION_KEY`, `PORT`
+- [ ] 1.7 Configure environment variables for both projects: `MONGODB_URI`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `CLIENT_URL`, `TWILIO_*`, `ENCRYPTION_KEY`, `PORT`
 - [ ] 1.8 Create `client/src/lib/axios.js` — Axios instance with `baseURL` pointing to Express server and `withCredentials: true`
 
 ## 2. Database Models
@@ -47,7 +47,7 @@
 
 ## 6. Tenant Management
 
-- [ ] 6.1 Create `server/src/lib/cloudinary.js` — Multer + Cloudinary storage engine for rent agreement PDFs (max 5 MB, PDF MIME type only)
+- [ ] 6.1 Create `server/src/lib/gridfs.js` — Multer + MongoDB GridFS storage engine (`multer-gridfs-storage`) for rent agreement PDFs (max 5 MB, PDF MIME type only); add `GET /api/tenants/:id/agreement` Express route that streams the file from GridFS with auth check
 - [ ] 6.2 Create `server/src/routes/tenants.js` + `server/src/controllers/tenantController.js` — `GET /api/tenants` (list, omit aadhaar/pan projection), `POST /api/tenants` (encrypt aadhaar/pan, upload PDF), `GET /api/tenants/:id` (single, decrypt fields), `PUT /api/tenants/:id` (update with re-encryption), `PATCH /api/tenants/:id/deactivate` (set isActive false, cascade-cancel pending bills)
 - [ ] 6.3 Create `client/src/app/(dashboard)/tenants/page.jsx` — tenant list page; fetches from `/api/tenants` via Axios
 - [ ] 6.4 Build `TenantForm` component — all tenant fields; property dropdown populated from `/api/properties`; file input for rent agreement PDF; uses `multipart/form-data` via Axios
@@ -113,7 +113,7 @@
 - [ ] 13.3 Add `userId` ownership check in every Express controller — compare `req.user.id` against the document's `userId` before GET/PUT/DELETE; return 403 on mismatch
 - [ ] 13.4 Apply `express-rate-limit` to `POST /api/auth/register` and `POST /api/auth/login` (max 10 requests per 15 min per IP)
 - [ ] 13.5 Sanitize all string inputs using `express-mongo-sanitize` middleware to prevent NoSQL injection
-- [ ] 13.6 Validate file MIME type (PDF only) and size (≤5 MB) in the Multer config server-side before Cloudinary upload
+- [ ] 13.6 Validate file MIME type (PDF only) and size (≤5 MB) in the Multer config server-side before GridFS upload
 
 ## 14. Polish & Deployment
 

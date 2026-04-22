@@ -38,4 +38,4 @@ Landlords managing multiple rental properties currently rely on spreadsheets, pa
 - **Database**: MongoDB collections for users, properties, tenants, bills, payments, expenses, and reminders
 - **External dependencies**: Twilio or WhatsApp Business API (reminders), Razorpay/Stripe (future payments), PDF/Excel export libraries
 - **Authentication surface**: Protected API routes and pages requiring valid session tokens
-- **File storage**: Rent agreement PDFs handled by Express via Multer + Cloudinary (or local disk storage)
+- **File storage**: Rent agreement PDFs stored in MongoDB GridFS via Multer + `multer-gridfs-storage`; served through a dedicated Express download route
