@@ -59,6 +59,7 @@ function ordinal(n) {
 export default function TenantsPage() {
   const [tenants, setTenants] = useState([]);
   const [properties, setProperties] = useState([]);
+  const [propertiesLoaded, setPropertiesLoaded] = useState(false);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("active");
   const deferredSearch = useDeferredValue(search);
@@ -115,10 +116,14 @@ export default function TenantsPage() {
       .then((res) => {
         if (isActive) {
           setProperties(res.data.properties ?? []);
+          setPropertiesLoaded(true);
         }
       })
       .catch(() => {
-        // Non-critical — form will show empty dropdown
+        if (isActive) {
+          setPropertiesLoaded(true);
+          toast.error("Failed to load properties. Re-open the form to try again.");
+        }
       });
 
     return () => {
@@ -381,8 +386,10 @@ export default function TenantsPage() {
               }}
               onSubmit={handleSave}
               properties={
-                editingTenant
-                  ? // When editing: show all + the tenant's current property even if occupied
+                !propertiesLoaded
+                  ? [] // still loading — pass empty, form shows no helper yet
+                  : editingTenant
+                  ? // When editing: show vacant + the tenant's current property
                     properties.filter(
                       (p) =>
                         (p.activeTenantCount ?? 0) === 0 ||
@@ -391,6 +398,7 @@ export default function TenantsPage() {
                   : // When creating: only vacant properties
                     properties.filter((p) => (p.activeTenantCount ?? 0) === 0)
               }
+              propertiesLoaded={propertiesLoaded}
               tenant={editingTenant}
             />
           </div>

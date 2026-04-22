@@ -45,7 +45,7 @@ function getInitialForm(tenant) {
   };
 }
 
-export function TenantForm({ isSubmitting, onCancel, onSubmit, properties = [], tenant }) {
+export function TenantForm({ isSubmitting, onCancel, onSubmit, properties = [], propertiesLoaded = false, tenant }) {
   const [formData, setFormData] = useState(() => getInitialForm(tenant));
   const [errors, setErrors] = useState({});
   const [selectedFile, setSelectedFile] = useState(null);
@@ -94,8 +94,8 @@ export function TenantForm({ isSubmitting, onCancel, onSubmit, properties = [], 
 
     const dueDate = Number(formData.paymentDueDate);
 
-    if (!formData.paymentDueDate || dueDate < 1 || dueDate > 31) {
-      nextErrors.paymentDueDate = "Enter a day between 1 and 31.";
+    if (!formData.paymentDueDate || !Number.isInteger(dueDate) || dueDate < 1 || dueDate > 31) {
+      nextErrors.paymentDueDate = "Enter a whole day between 1 and 31.";
     }
 
     if (!formData.startDate) {
@@ -197,7 +197,11 @@ export function TenantForm({ isSubmitting, onCancel, onSubmit, properties = [], 
         </legend>
         <Select
           error={errors.propertyId}
-          helper={properties.length === 0 ? "All properties are currently occupied." : undefined}
+          helper={
+            propertiesLoaded && properties.length === 0
+              ? "All properties are currently occupied."
+              : undefined
+          }
           label="Property"
           onChange={(e) => updateField("propertyId", e.target.value)}
           value={formData.propertyId}
@@ -232,6 +236,7 @@ export function TenantForm({ isSubmitting, onCancel, onSubmit, properties = [], 
             label="Payment Due Date"
             max={31}
             min={1}
+            step={1}
             onChange={(e) => updateField("paymentDueDate", e.target.value)}
             placeholder="5"
             type="number"
@@ -301,6 +306,7 @@ export function TenantForm({ isSubmitting, onCancel, onSubmit, properties = [], 
               className="text-muted transition-colors hover:text-danger"
               onClick={() => {
                 setSelectedFile(null);
+                setErrors((current) => { const next = { ...current }; delete next.rentAgreement; return next; });
 
                 if (fileInputRef.current) {
                   fileInputRef.current.value = "";
@@ -329,6 +335,7 @@ export function TenantForm({ isSubmitting, onCancel, onSubmit, properties = [], 
 
             if (file) {
               setSelectedFile(file);
+              setErrors((current) => { const next = { ...current }; delete next.rentAgreement; return next; });
             }
           }}
           ref={fileInputRef}
