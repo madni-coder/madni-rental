@@ -5,7 +5,15 @@ The system SHALL allow a landlord to onboard a tenant with the following fields:
 
 #### Scenario: Successful tenant creation
 - **WHEN** a landlord submits a valid tenant form including a property selection
-- **THEN** the system creates the tenant record linked to the property and landlord, uploads the PDF if provided, and shows the new tenant in the list
+- **THEN** the system creates the tenant record linked to the property and landlord, uploads the PDF if provided, closes the form sheet, and **immediately** shows the new tenant at the top of the list without requiring a page refresh
+
+#### Scenario: Immediate list update after edit
+- **WHEN** a landlord submits an edited tenant form
+- **THEN** the updated row is reflected in the list immediately upon sheet close, without a page reload
+
+#### Scenario: Form sheet scrollable on mobile
+- **WHEN** a landlord opens the Add Tenant or Edit Tenant sheet on a narrow mobile viewport
+- **THEN** the sheet occupies the full screen height and the form content is scrollable so all fields and the submit button are reachable
 
 #### Scenario: Duplicate Aadhaar rejected
 - **WHEN** a landlord submits a tenant with an Aadhaar number already registered under their account
@@ -13,9 +21,18 @@ The system SHALL allow a landlord to onboard a tenant with the following fields:
 
 #### Scenario: Rent agreement upload size exceeded
 - **WHEN** a landlord uploads a file larger than 5 MB
-- **THEN** the system returns a validation error before uploading to Cloudinary
+- **THEN** the system returns a validation error before uploading to GridFS
 
-#### Scenario: Tenant cannot be active in two properties simultaneously (TC17)
+#### Scenario: Occupied properties hidden from dropdown
+- **WHEN** a landlord opens the Add Tenant form
+- **THEN** the property dropdown shows only properties with no active tenant; properties already occupied are not listed
+- **AND** if all properties are occupied, a helper message "All properties are currently occupied." is shown
+
+#### Scenario: Current property visible when editing
+- **WHEN** a landlord opens the Edit Tenant form for an existing active tenant
+- **THEN** the tenant's current property is visible in the dropdown even though it is occupied, so it can be retained
+
+
 - **WHEN** a landlord attempts to create or assign a tenant who is already active (`isActive: true`) in another property
 - **THEN** the system returns an error "Tenant is already active in another property" and does not save
 

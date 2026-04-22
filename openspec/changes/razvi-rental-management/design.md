@@ -38,10 +38,10 @@ Razvi Rental Management is a greenfield full-stack web application for landlords
 **Rationale:** No NextAuth dependency keeps the stack simpler; JWT-in-cookie avoids XSS risks of localStorage; the approach is self-contained and portable to any Node.js host.  
 **Alternative considered:** NextAuth — rejected because it is tightly coupled to Next.js route handlers, which are not used in this architecture.
 
-### D4 — Cloudinary for file uploads
-**Decision:** Use Cloudinary (free tier) for rent agreement PDF storage.  
-**Rationale:** Zero-infrastructure file hosting with a signed upload API that prevents unauthorized uploads. SDKs available for both server and client.  
-**Alternative considered:** AWS S3 — viable but requires IAM configuration and more setup for a rental-scale app.
+### D4 — MongoDB GridFS for file uploads
+**Decision:** Use MongoDB GridFS (via `multer-gridfs-storage`) for rent agreement PDF storage, keeping all data within the existing MongoDB instance.  
+**Rationale:** No external service or API keys required; files live in the same database as application data, simplifying backups, deployments, and local development. PDFs are served back through an Express route with authentication enforcement.  
+**Alternative considered:** Cloudinary — rejected because it introduces an external dependency, requires API keys, and adds operational complexity for a single-landlord app; AWS S3 — same concerns.
 
 ### D5 — API design (Express Router)
 **Decision:** All API logic lives in the `server/` project under `src/routes/`. Each resource gets its own router file: `auth.js`, `properties.js`, `tenants.js`, `bills.js`, `payments.js`, `expenses.js`, `reminders.js`, `reports.js`, `dashboard.js`. Controllers are separated from route definitions under `src/controllers/`. The Express app mounts all routers under `/api`.  
@@ -105,7 +105,7 @@ server/                                  ← Express.js REST API (JavaScript)
     lib/
       db.js            ← Mongoose connection singleton
       encryption.js    ← AES-256 helpers
-      cloudinary.js    ← Multer + Cloudinary upload helper
+      gridfs.js        ← Multer + MongoDB GridFS upload helper
       reminders.js     ← Twilio send helper
       scheduler.js     ← node-cron daily reminder job
   .env
@@ -122,7 +122,7 @@ server/                                  ← Express.js REST API (JavaScript)
 |---|---|
 | MongoDB ObjectId references can go stale if documents are deleted | Use soft-deletes (mark `isActive: false`) instead of hard deletes for tenants and properties; cascade-cancel bills on tenant deactivation |
 | Aadhaar/PAN numbers are sensitive PII | Store encrypted at rest (AES-256 via `crypto` module before save); never log or expose in API responses unless explicitly needed |
-| Cloudinary free tier limits | Default contract PDFs only; no video or large files; add file size validation (≤5 MB) on upload |
+| GridFS storage growth | Default contract PDFs only; enforce file size validation (≤5 MB) and PDF MIME type on upload; GridFS scales with the MongoDB instance |
 | Twilio WhatsApp requires pre-approved message templates | Use Twilio Sandbox for development; production requires Business API approval — document this as a setup prerequisite |
 | Single-admin scope limits future multi-landlord expansion | Design `userId` on every collection now so multi-tenant support is additive, not a rewrite |
 | Bill status transitions can become inconsistent | Bills follow a strict state machine: `pending → partial → paid` or `pending/partial → cancelled`; invalid transitions rejected at API level |

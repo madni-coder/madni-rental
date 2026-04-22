@@ -10,7 +10,7 @@ export function proxy(request) {
         return NextResponse.redirect(new URL(token ? "/properties" : "/login", request.url));
     }
 
-    if (pathname.startsWith("/properties") && !token) {
+    if ((pathname.startsWith("/properties") || pathname.startsWith("/tenants")) && !token) {
         return NextResponse.redirect(new URL("/login", request.url));
     }
 
@@ -22,5 +22,5 @@ export function proxy(request) {
 }
 
 export const config = {
-    matcher: ["/", "/login", "/properties/:path*"],
+    matcher: ["/", "/login", "/properties/:path*", "/tenants/:path*"],
 };
