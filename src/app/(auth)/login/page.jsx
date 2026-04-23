@@ -21,6 +21,10 @@ export default function LoginPage() {
     }
   }, [isLoading, router, user]);
 
+  if (!isLoading && user) {
+    return null;
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
     setError("");
