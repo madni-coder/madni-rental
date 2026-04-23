@@ -31,8 +31,7 @@ export default function LoginPage() {
       router.replace("/properties");
     } catch (requestError) {
       setError(
-        requestError?.response?.data?.message ??
-          "Unable to sign in with the provided credentials.",
+        requestError?.message ?? "Unable to sign in with the provided credentials.",
       );
     } finally {
       setIsSubmitting(false);
