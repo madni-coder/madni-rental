@@ -2,13 +2,12 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import api from "@/lib/axios";
 
 const AuthContext = createContext(null);
 
-const DEMO_EMAIL = "admin@razvi";
-const DEMO_PASSWORD = "123";
-const DEMO_USER = { email: DEMO_EMAIL, name: "Admin" };
 const STORAGE_KEY = "razvi_user";
+const TOKEN_KEY = "razvi_token";
 
 export function AuthProvider({ children }) {
   const router = useRouter();
@@ -16,32 +15,34 @@ export function AuthProvider({ children }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      const resolved = stored ? JSON.parse(stored) : DEMO_USER;
-      if (!stored) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(DEMO_USER));
+    const token = localStorage.getItem(TOKEN_KEY);
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (token && stored) {
+      try {
+        setUser(JSON.parse(stored));
+      } catch {
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(TOKEN_KEY);
       }
-      setUser(resolved);
-    } catch {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(DEMO_USER));
-      setUser(DEMO_USER);
-    } finally {
-      setIsLoading(false);
     }
+    setIsLoading(false);
   }, []);
 
   async function login({ email, password }) {
-    if (email === DEMO_EMAIL && password === DEMO_PASSWORD) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(DEMO_USER));
-      setUser(DEMO_USER);
-      router.refresh();
-    } else {
-      throw new Error("Invalid credentials.");
-    }
+    const { data } = await api.post("/auth/login", { email, password });
+    localStorage.setItem(TOKEN_KEY, data.token);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data.user));
+    setUser(data.user);
+    router.refresh();
   }
 
   async function logout() {
+    try {
+      await api.post("/auth/logout");
+    } catch {
+      // ignore
+    }
+    localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(STORAGE_KEY);
     setUser(null);
     router.replace("/login");
