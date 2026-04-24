@@ -63,7 +63,6 @@ export default function PropertiesPage() {
   const [editingProperty, setEditingProperty] = useState(null);
   const [viewingProperty, setViewingProperty] = useState(null);
   const [deletingProperty, setDeletingProperty] = useState(null);
-  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     let isActive = true;
@@ -98,23 +97,35 @@ export default function PropertiesPage() {
     return () => {
       isActive = false;
     };
-  }, [deferredSearch, refreshKey, status]);
+  }, [deferredSearch, status]);
 
   async function handleSave(payload) {
     setIsSaving(true);
 
     try {
       if (editingProperty?._id) {
-        await api.put(`/properties/${editingProperty._id}`, payload);
+        const response = await api.put(`/properties/${editingProperty._id}`, payload);
         toast.success("Property updated.");
+        const updated = response.data.property;
+        setProperties((prev) =>
+          prev.map((p) =>
+            p._id === updated._id
+              ? { ...updated, activeTenantCount: p.activeTenantCount, currentTenant: p.currentTenant, status: p.status }
+              : p,
+          ),
+        );
       } else {
-        await api.post("/properties", payload);
+        const response = await api.post("/properties", payload);
         toast.success("Property created.");
+        const created = response.data.property;
+        setProperties((prev) => [
+          { ...created, activeTenantCount: 0, currentTenant: null, status: "inactive" },
+          ...prev,
+        ]);
       }
 
       setIsSheetOpen(false);
       setEditingProperty(null);
-      setRefreshKey((current) => current + 1);
     } catch (error) {
       const fieldErrors = error?.response?.data?.errors;
 
@@ -140,8 +151,8 @@ export default function PropertiesPage() {
     try {
       await api.delete(`/properties/${deletingProperty._id}`);
       toast.success("Property deleted.");
+      setProperties((prev) => prev.filter((p) => p._id !== deletingProperty._id));
       setDeletingProperty(null);
-      setRefreshKey((current) => current + 1);
     } catch (error) {
       toast.error(
         error?.response?.status === 409

@@ -70,7 +70,6 @@ export default function TenantsPage() {
   const [editingTenant, setEditingTenant] = useState(null);
   const [deactivatingTenant, setDeactivatingTenant] = useState(null);
   const [exitDate, setExitDate] = useState("");
-  const [refreshKey, setRefreshKey] = useState(0);
 
   // Fetch tenants
   useEffect(() => {
@@ -106,7 +105,7 @@ export default function TenantsPage() {
     return () => {
       isActive = false;
     };
-  }, [deferredSearch, refreshKey, status]);
+  }, [deferredSearch, status]);
 
   // Fetch properties for the form dropdown (once)
   useEffect(() => {
@@ -156,17 +155,24 @@ export default function TenantsPage() {
       }
 
       if (editingTenant?._id) {
-        await api.put(`/tenants/${editingTenant._id}`, requestData, config);
+        const response = await api.put(`/tenants/${editingTenant._id}`, requestData, config);
         toast.success("Tenant updated.");
+        const updated = response.data.tenant;
+        setTenants((prev) => prev.map((t) => (t._id === updated._id ? updated : t)));
       } else {
-        await api.post("/tenants", requestData, config);
+        const response = await api.post("/tenants", requestData, config);
         toast.success("Tenant added.");
+        const created = response.data.tenant;
+        const property = properties.find((p) => String(p._id) === String(created.propertyId));
+        const enriched = {
+          ...created,
+          propertyId: property ? { _id: property._id, name: property.name } : { _id: created.propertyId },
+        };
+        setTenants((prev) => [enriched, ...prev]);
       }
 
       setIsSheetOpen(false);
       setEditingTenant(null);
-      setSearch("");
-      setRefreshKey((k) => k + 1);
     } catch (error) {
       const fieldErrors = error?.response?.data?.errors;
 
@@ -194,9 +200,16 @@ export default function TenantsPage() {
         exitDate: exitDate || undefined,
       });
       toast.success("Tenant marked as inactive.");
+      setTenants((prev) => {
+        const next = prev.map((t) =>
+          t._id === deactivatingTenant._id
+            ? { ...t, isActive: false, endDate: exitDate || t.endDate }
+            : t,
+        );
+        return status === "active" ? next.filter((t) => t.isActive) : next;
+      });
       setDeactivatingTenant(null);
       setExitDate("");
-      setRefreshKey((k) => k + 1);
     } catch (error) {
       toast.error(error?.response?.data?.message ?? "Failed to deactivate tenant.");
     } finally {
