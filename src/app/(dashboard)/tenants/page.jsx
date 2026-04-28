@@ -13,6 +13,7 @@ import {
 import { toast } from "sonner";
 import { PageHeader } from "@/components/shared/page-header";
 import { TenantForm } from "@/components/tenants/tenant-form";
+import { TenantDocumentManager } from "@/components/tenants/tenant-document-manager";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -68,6 +69,7 @@ export default function TenantsPage() {
   const [isDeactivating, setIsDeactivating] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [editingTenant, setEditingTenant] = useState(null);
+  const [tenantTab, setTenantTab] = useState("details");
   const [deactivatingTenant, setDeactivatingTenant] = useState(null);
   const [exitDate, setExitDate] = useState("");
 
@@ -130,45 +132,40 @@ export default function TenantsPage() {
     };
   }, []);
 
-  async function handleSave(payload) {
+  async function handleSave(payload, queuedDocs = []) {
     setIsSaving(true);
 
     try {
-      const { rentAgreementFile, ...fields } = payload;
-      let requestData;
-      let config = {};
-
-      if (rentAgreementFile) {
-        const formData = new FormData();
-        Object.entries(fields).forEach(([key, value]) => {
-          if (value !== null && value !== undefined) {
-            formData.append(key, value);
-          }
-        });
-        formData.append("rentAgreement", rentAgreementFile);
-        requestData = formData;
-      } else {
-        requestData = Object.fromEntries(
-          Object.entries(fields).filter(([, v]) => v !== null && v !== undefined),
-        );
-        config = { headers: { "Content-Type": "application/json" } };
-      }
-
       if (editingTenant?._id) {
-        const response = await api.put(`/tenants/${editingTenant._id}`, requestData, config);
+        const response = await api.put(`/tenants/${editingTenant._id}`, payload);
         toast.success("Tenant updated.");
-        const updated = response.data.tenant;
-        setTenants((prev) => prev.map((t) => (t._id === updated._id ? updated : t)));
+        setTenants((prev) => prev.map((t) => (t._id === response.data.tenant._id ? response.data.tenant : t)));
       } else {
-        const response = await api.post("/tenants", requestData, config);
+        const response = await api.post("/tenants", payload);
+        const newTenant = response.data.tenant;
+
+        // Upload any queued documents sequentially
+        if (queuedDocs.length > 0) {
+          let lastDocuments = newTenant.documents ?? [];
+          for (const doc of queuedDocs) {
+            try {
+              const formData = new FormData();
+              formData.append("file", doc.file);
+              formData.append("type", doc.type);
+              if (doc.label?.trim()) formData.append("label", doc.label.trim());
+              const docRes = await api.post(`/tenants/${newTenant._id}/documents`, formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+              });
+              lastDocuments = docRes.data.documents ?? lastDocuments;
+            } catch {
+              toast.error(`Failed to upload "${doc.file.name}". You can retry from the Documents tab.`);
+            }
+          }
+          newTenant.documents = lastDocuments;
+        }
+
         toast.success("Tenant added.");
-        const created = response.data.tenant;
-        const property = properties.find((p) => String(p._id) === String(created.propertyId));
-        const enriched = {
-          ...created,
-          propertyId: property ? { _id: property._id, name: property.name } : { _id: created.propertyId },
-        };
-        setTenants((prev) => [enriched, ...prev]);
+        setTenants((prev) => [newTenant, ...prev]);
       }
 
       setIsSheetOpen(false);
@@ -239,6 +236,7 @@ export default function TenantsPage() {
           className="max-w-full sm:max-w-xs"
           icon={<Search aria-hidden="true" size={16} />}
           onChange={(e) => setSearch(e.target.value)}
+          onClear={() => setSearch("")}
           placeholder="Search by name or phone"
           value={search}
         />
@@ -296,13 +294,23 @@ export default function TenantsPage() {
               </TableHeader>
               <TableBody>
                 {tenants.map((tenant) => (
-                  <TableRow key={tenant._id}>
+                  <TableRow
+                    key={tenant._id}
+                    className="cursor-pointer"
+                    onClick={() => {
+                      setEditingTenant(tenant);
+                      setTenantTab("details");
+                      setIsSheetOpen(true);
+                    }}
+                  >
                     <TableCell>
                       <div className="font-medium text-text">{tenant.fullName}</div>
                       <div className="mt-0.5 text-xs text-muted">{tenant.phone}</div>
                     </TableCell>
                     <TableCell className="text-sm text-muted">
-                      {tenant.propertyId?.name ?? "—"}
+                      {tenant.blockId?.name
+                        ? `${tenant.blockId.name}${tenant.blockId?.propertyId?.name ? ` · ${tenant.blockId.propertyId.name}` : ""}`
+                        : tenant.propertyId?.name ?? "—"}
                     </TableCell>
                     <TableCell className="font-medium text-text">
                       {formatRent(tenant.monthlyRent)}
@@ -320,12 +328,13 @@ export default function TenantsPage() {
                         <Badge variant="outline">Inactive</Badge>
                       )}
                     </TableCell>
-                    <TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
                       <div className="flex justify-end gap-1.5">
                         <Button
                           aria-label={`Edit ${tenant.fullName}`}
                           onClick={() => {
                             setEditingTenant(tenant);
+                            setTenantTab("details");
                             setIsSheetOpen(true);
                           }}
                           title="Edit tenant"
@@ -374,6 +383,7 @@ export default function TenantsPage() {
 
           if (!nextOpen) {
             setEditingTenant(null);
+            setTenantTab("details");
           }
         }}
       >
@@ -389,31 +399,51 @@ export default function TenantsPage() {
                 : "Onboard a new tenant and link them to a property."}
             </SheetDescription>
           </SheetHeader>
+
+          {/* Tabs — only shown when editing an existing tenant */}
+          {editingTenant?._id ? (
+            <div className="mt-5 flex gap-1 rounded-xl border border-border bg-bg/40 p-1">
+              {[
+                { id: "details", label: "Details" },
+                { id: "documents", label: "Documents" },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  className={`flex-1 rounded-lg py-1.5 text-xs font-semibold uppercase tracking-[0.18em] transition-colors ${
+                    tenantTab === tab.id
+                      ? "bg-surface text-text shadow-sm"
+                      : "text-muted hover:text-text"
+                  }`}
+                  onClick={() => setTenantTab(tab.id)}
+                  type="button"
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          ) : null}
+
           <div className="mt-6 min-h-0 flex-1 overflow-y-auto">
-            <TenantForm
-              key={editingTenant?._id ?? "new"}
-              isSubmitting={isSaving}
-              onCancel={() => {
-                setIsSheetOpen(false);
-                setEditingTenant(null);
-              }}
-              onSubmit={handleSave}
-              properties={
-                !propertiesLoaded
-                  ? [] // still loading — pass empty, form shows no helper yet
-                  : editingTenant
-                  ? // When editing: show vacant + the tenant's current property
-                    properties.filter(
-                      (p) =>
-                        (p.activeTenantCount ?? 0) === 0 ||
-                        String(p._id) === String(editingTenant.propertyId?._id ?? editingTenant.propertyId),
-                    )
-                  : // When creating: only vacant properties
-                    properties.filter((p) => (p.activeTenantCount ?? 0) === 0)
-              }
-              propertiesLoaded={propertiesLoaded}
-              tenant={editingTenant}
-            />
+            {!editingTenant?._id || tenantTab === "details" ? (
+              <TenantForm
+                key={editingTenant?._id ?? "new"}
+                isSubmitting={isSaving}
+                onCancel={() => {
+                  setIsSheetOpen(false);
+                  setEditingTenant(null);
+                }}
+                onSubmit={handleSave}
+                properties={propertiesLoaded ? properties : []}
+                propertiesLoaded={propertiesLoaded}
+                tenant={editingTenant}
+              />
+            ) : (
+              <TenantDocumentManager
+                key={editingTenant._id}
+                documents={editingTenant.documents ?? []}
+                tenantId={editingTenant._id}
+              />
+            )}
           </div>
         </SheetContent>
       </Sheet>

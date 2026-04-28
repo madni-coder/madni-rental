@@ -81,14 +81,7 @@ export default function LoginPage() {
           </Button>
         </form>
 
-        <div className="mt-6 rounded-xl border border-border bg-bg/50 p-4 text-sm text-muted">
-          <div className="mb-2 flex items-center gap-2 text-text">
-            <ShieldCheck aria-hidden="true" size={16} className="text-primary" />
-            Demo access
-          </div>
-          <p>Email: admin@razvi</p>
-          <p>Password: 123</p>
-        </div>
+       
       </section>
     </main>
   );

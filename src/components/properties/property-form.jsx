@@ -10,8 +10,10 @@ import { Textarea } from "@/components/ui/textarea";
 const emptyForm = {
   address: "",
   amenities: [],
+  annualTaxAmount: "",
   areaSqFt: "",
   floors: "",
+  nagarNigamPropertyId: "",
   name: "",
   notes: "",
   plannedRent: "",
@@ -26,8 +28,10 @@ function getInitialForm(property) {
   return {
     address: property.address ?? "",
     amenities: property.amenities ?? [],
+    annualTaxAmount: property.annualTaxAmount ?? "",
     areaSqFt: property.areaSqFt ?? "",
     floors: property.floors ?? "",
+    nagarNigamPropertyId: property.nagarNigamPropertyId ?? "",
     name: property.name ?? "",
     notes: property.notes ?? "",
     plannedRent: property.plannedRent ?? "",
@@ -137,8 +141,10 @@ export function PropertyForm({ isSubmitting, onCancel, onSubmit, property }) {
     const serverErrors = await onSubmit({
       address: latestForm.address.trim(),
       amenities: latestForm.amenities,
+      annualTaxAmount: latestForm.annualTaxAmount === "" ? 0 : Number(latestForm.annualTaxAmount),
       areaSqFt: latestForm.areaSqFt === "" ? null : Number(latestForm.areaSqFt),
       floors: latestForm.floors === "" ? null : Number(latestForm.floors),
+      nagarNigamPropertyId: latestForm.nagarNigamPropertyId.trim(),
       name: latestForm.name.trim(),
       notes: latestForm.notes.trim(),
       plannedRent: Number(latestForm.plannedRent),
@@ -189,28 +195,42 @@ export function PropertyForm({ isSubmitting, onCancel, onSubmit, property }) {
         />
       </div>
 
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Input
+          error={errors.plannedRent}
+          label="Planned Rent"
+          onChange={(event) => updateField("plannedRent", event.target.value)}
+          placeholder="45000"
+          type="number"
+          value={formData.plannedRent}
+        />
+        <Input
+          error={errors.annualTaxAmount}
+          label="Annual Tax Amount (₹)"
+          onChange={(event) => updateField("annualTaxAmount", event.target.value)}
+          placeholder="5000"
+          type="number"
+          value={formData.annualTaxAmount}
+        />
+      </div>
+
       <Input
-        error={errors.plannedRent}
-        label="Planned Rent"
-        onChange={(event) => updateField("plannedRent", event.target.value)}
-        placeholder="45000"
-        type="number"
-        value={formData.plannedRent}
+        label="Nagar Nigam Property ID (Optional)"
+        onChange={(event) => updateField("nagarNigamPropertyId", event.target.value)}
+        placeholder="NN/2024/001234"
+        value={formData.nagarNigamPropertyId}
       />
 
-      <Textarea
+      <Input
         error={errors.address}
         label="Address"
         onChange={(event) => updateField("address", event.target.value)}
-        placeholder="Street, block, city"
-        rows={3}
+        placeholder="123, MG Road, Mumbai - 400001"
         value={formData.address}
       />
 
       <div className="space-y-2">
-        <label className="block text-xs font-medium uppercase tracking-[0.24em] text-muted">
-          Amenities
-        </label>
+        <p className="text-xs font-medium uppercase tracking-[0.24em] text-muted">Amenities</p>
         <div className="flex gap-2">
           <Input
             onChange={(event) => setAmenityInput(event.target.value)}
