@@ -5,16 +5,16 @@ import {
   Building2,
   Eye,
   Home,
-  MapPin,
   Pencil,
   Plus,
   Search,
   Trash2,
-  Wallet,
 } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/shared/page-header";
+import { BlockManager } from "@/components/properties/block-manager";
 import { PropertyForm } from "@/components/properties/property-form";
+import { TaxPaymentManager } from "@/components/properties/tax-payment-manager";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -62,6 +62,7 @@ export default function PropertiesPage() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [editingProperty, setEditingProperty] = useState(null);
   const [viewingProperty, setViewingProperty] = useState(null);
+  const [viewTab, setViewTab] = useState("details");
   const [deletingProperty, setDeletingProperty] = useState(null);
 
   useEffect(() => {
@@ -186,6 +187,7 @@ export default function PropertiesPage() {
           className="max-w-full sm:max-w-xs"
           icon={<Search aria-hidden="true" size={16} />}
           onChange={(event) => setSearch(event.target.value)}
+          onClear={() => setSearch("")}
           placeholder="Search by name or address"
           value={search}
         />
@@ -349,71 +351,121 @@ export default function PropertiesPage() {
         </SheetContent>
       </Sheet>
 
-      <Dialog open={Boolean(viewingProperty)} onOpenChange={() => setViewingProperty(null)}>
-        <DialogContent size="md">
-          <DialogHeader>
-            <DialogTitle>
+      <Sheet
+        open={Boolean(viewingProperty)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setViewingProperty(null);
+            setViewTab("details");
+          }
+        }}
+      >
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>
               <Home aria-hidden="true" size={20} className="text-primary" />
               {viewingProperty?.name}
-            </DialogTitle>
-            <DialogDescription>
-              A quick read-only snapshot of the current property record.
-            </DialogDescription>
-          </DialogHeader>
+            </SheetTitle>
+            <SheetDescription>
+              {viewingProperty?.address}
+            </SheetDescription>
+          </SheetHeader>
+
+          {/* Tab nav */}
+          <div className="mt-5 flex gap-1 rounded-xl border border-border bg-bg/40 p-1">
+            {[
+              { id: "details", label: "Details" },
+              { id: "blocks", label: "Blocks" },
+              { id: "tax", label: "Tax Payments" },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                className={`flex-1 rounded-lg py-1.5 text-xs font-semibold uppercase tracking-[0.18em] transition-colors ${
+                  viewTab === tab.id
+                    ? "bg-surface text-text shadow-sm"
+                    : "text-muted hover:text-text"
+                }`}
+                onClick={() => setViewTab(tab.id)}
+                type="button"
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
           {viewingProperty ? (
-            <div className="grid gap-4 text-sm text-muted sm:grid-cols-2">
-              <div className="rounded-xl border border-border bg-bg/55 p-4">
-                <p className="mb-1 text-xs uppercase tracking-[0.24em] text-muted">Address</p>
-                <p className="text-sm text-text">{viewingProperty.address}</p>
-              </div>
-              <div className="rounded-xl border border-border bg-bg/55 p-4">
-                <p className="mb-1 text-xs uppercase tracking-[0.24em] text-muted">Type</p>
-                <p className="text-sm text-text">
-                  {propertyTypeLabel[viewingProperty.type] ?? viewingProperty.type}
-                </p>
-              </div>
-              <div className="rounded-xl border border-border bg-bg/55 p-4">
-                <p className="mb-1 text-xs uppercase tracking-[0.24em] text-muted">Monthly Rent</p>
-                <p className="text-sm text-text">{formatCurrency(viewingProperty.plannedRent)}</p>
-              </div>
-              <div className="rounded-xl border border-border bg-bg/55 p-4">
-                <p className="mb-1 text-xs uppercase tracking-[0.24em] text-muted">Floors</p>
-                <p className="text-sm text-text">{viewingProperty.floors || "Not set"}</p>
-              </div>
-              <div className="rounded-xl border border-border bg-bg/55 p-4">
-                <p className="mb-1 text-xs uppercase tracking-[0.24em] text-muted">Area</p>
-                <p className="text-sm text-text">
-                  {viewingProperty.areaSqFt ? `${viewingProperty.areaSqFt} sq ft` : "Not set"}
-                </p>
-              </div>
-              <div className="rounded-xl border border-border bg-bg/55 p-4">
-                <p className="mb-1 text-xs uppercase tracking-[0.24em] text-muted">Status</p>
-                <p className="text-sm text-text">
-                  {viewingProperty.status === "active" ? "Occupied / active" : "Vacant / inactive"}
-                </p>
-              </div>
-              <div className="rounded-xl border border-border bg-bg/55 p-4 sm:col-span-2">
-                <p className="mb-2 text-xs uppercase tracking-[0.24em] text-muted">Amenities</p>
-                {viewingProperty.amenities?.length ? (
-                  <div className="flex flex-wrap gap-2">
-                    {viewingProperty.amenities.map((amenity) => (
-                      <Badge key={amenity} variant="outline">
-                        {amenity}
-                      </Badge>
-                    ))}
+            <div className="mt-5">
+              {viewTab === "details" && (
+                <div className="grid gap-3 text-sm text-muted sm:grid-cols-2">
+                  <div className="rounded-xl border border-border bg-bg/55 p-4">
+                    <p className="mb-1 text-xs uppercase tracking-[0.24em] text-muted">Type</p>
+                    <p className="text-sm text-text">
+                      {propertyTypeLabel[viewingProperty.type] ?? viewingProperty.type}
+                    </p>
                   </div>
-                ) : (
-                  <p className="text-sm text-text">No amenities added.</p>
-                )}
-              </div>
-              <div className="rounded-xl border border-border bg-bg/55 p-4 sm:col-span-2">
-                <p className="mb-2 text-xs uppercase tracking-[0.24em] text-muted">Notes</p>
-                <p className="text-sm text-text">{viewingProperty.notes || "No notes added."}</p>
-              </div>
+                  <div className="rounded-xl border border-border bg-bg/55 p-4">
+                    <p className="mb-1 text-xs uppercase tracking-[0.24em] text-muted">Status</p>
+                    <p className="text-sm text-text">
+                      {viewingProperty.status === "active" ? "Occupied / active" : "Vacant / inactive"}
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-border bg-bg/55 p-4">
+                    <p className="mb-1 text-xs uppercase tracking-[0.24em] text-muted">Floors</p>
+                    <p className="text-sm text-text">{viewingProperty.floors || "Not set"}</p>
+                  </div>
+                  <div className="rounded-xl border border-border bg-bg/55 p-4">
+                    <p className="mb-1 text-xs uppercase tracking-[0.24em] text-muted">Area</p>
+                    <p className="text-sm text-text">
+                      {viewingProperty.areaSqFt ? `${viewingProperty.areaSqFt} sq ft` : "Not set"}
+                    </p>
+                  </div>
+                  {viewingProperty.nagarNigamPropertyId ? (
+                    <div className="rounded-xl border border-border bg-bg/55 p-4">
+                      <p className="mb-1 text-xs uppercase tracking-[0.24em] text-muted">Nagar Nigam ID</p>
+                      <p className="text-sm text-text">{viewingProperty.nagarNigamPropertyId}</p>
+                    </div>
+                  ) : null}
+                  {viewingProperty.annualTaxAmount ? (
+                    <div className="rounded-xl border border-border bg-bg/55 p-4">
+                      <p className="mb-1 text-xs uppercase tracking-[0.24em] text-muted">Annual Tax</p>
+                      <p className="text-sm text-text">₹{Number(viewingProperty.annualTaxAmount).toLocaleString("en-IN")}</p>
+                    </div>
+                  ) : null}
+                  <div className="rounded-xl border border-border bg-bg/55 p-4 sm:col-span-2">
+                    <p className="mb-2 text-xs uppercase tracking-[0.24em] text-muted">Amenities</p>
+                    {viewingProperty.amenities?.length ? (
+                      <div className="flex flex-wrap gap-2">
+                        {viewingProperty.amenities.map((amenity) => (
+                          <Badge key={amenity} variant="outline">
+                            {amenity}
+                          </Badge>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-text">No amenities added.</p>
+                    )}
+                  </div>
+                  <div className="rounded-xl border border-border bg-bg/55 p-4 sm:col-span-2">
+                    <p className="mb-2 text-xs uppercase tracking-[0.24em] text-muted">Notes</p>
+                    <p className="text-sm text-text">{viewingProperty.notes || "No notes added."}</p>
+                  </div>
+                </div>
+              )}
+
+              {viewTab === "blocks" && (
+                <BlockManager propertyId={viewingProperty._id} />
+              )}
+
+              {viewTab === "tax" && (
+                <TaxPaymentManager
+                  annualTaxAmount={viewingProperty.annualTaxAmount ?? 0}
+                  propertyId={viewingProperty._id}
+                />
+              )}
             </div>
           ) : null}
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
 
       <Dialog open={Boolean(deletingProperty)} onOpenChange={() => setDeletingProperty(null)}>
         <DialogContent size="sm">
